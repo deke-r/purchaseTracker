@@ -1,0 +1,63 @@
+.main-div {
+    /* background-image: url('https://source.unsplash.com/1600x900/?technology,abstract'); */
+    background-image: linear-gradient(to right, #6ee9f5, #52adc3, #3d748d, #274154, #0d141f);
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    /* border: 1px solid rgba(255, 255, 255, 0.2); */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    color: white;
+  }
+  
+  
+  .input-icon-wrapper {
+    position: relative;
+  }
+  
+  .input-icon {
+    position: absolute;
+    top: 20%;
+    left: 15px;
+
+    color: #ccc;
+    font-size: 16px;
+  }
+  
+  .form-control-login {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    padding-left: 2.5rem;
+    box-shadow: none  !important;
+    outline: none !important;
+    border: none !important;
+  }
+  .form-control-login:focus {
+   border: none !important;
+    box-shadow: none !important;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+  }
+  
+  .form-control-login::placeholder {
+    color: #ccc;
+  }
+  
+
+  
+  .eye-icon {
+    position: absolute;
+    top: 20%;
+    right: 20px;
+
+    color: #ccc;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .spinner-border {
+    color: white;
+  }

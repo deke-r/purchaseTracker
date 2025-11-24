@@ -1,0 +1,291 @@
+const express = require("express")
+const router = express.Router()
+const multer = require("multer")
+const path = require("path")
+const pool = require("../db/database")
+const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
+const authenticate = require("../middleware/authMiddleware")
+
+/* -------------------------------------
+   FILE UPLOAD STORAGE
+---------------------------------------- */
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/")
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
+    cb(null, uniqueSuffix + path.extname(file.originalname))
+  },
+})
+const upload = multer({ storage: storage })
+
+/* -------------------------------------
+   LOGIN
+---------------------------------------- */
+router.post("/login", async (req, res) => {
+  const { userId, password } = req.body
+
+  try {
+    const [users] = await pool.query("SELECT * FROM users WHERE email = ?", [userId])
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    const user = users[0]
+    console.log(user)
+    const isMatch = await bcrypt.compare(password, user.pass)
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" })
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role, name: user.name },
+      process.env.SECRET_KEY || "secret_key",
+      { expiresIn: "1h" }
+    )
+
+    return res.json({
+      message: "Login successful",
+      token,
+      role: user.role
+    })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
+   GET CURRENT USER
+---------------------------------------- */
+router.get("/me", authenticate, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT id, name, email, role FROM users WHERE id = ?",
+      [req.user.id]
+    )
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json(rows[0])
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
+   CREATE REQUEST
+---------------------------------------- */
+router.post("/material-request", authenticate, upload.single("file"), async (req, res) => {
+  try {
+    const {
+      vendor_name,
+      invoice_scope,
+      invoice_reference,
+      invoice_number,
+      comments,
+      base_value,
+      gst,
+      freight_insurance,
+      ipc_amount,
+      tds,
+      penalty,
+      payment_on_hold,
+      mobilization_advance_recovery,
+      amount_paid,
+      retention_amount,
+    } = req.body
+
+    const pdf_path = req.file ? req.file.filename : null
+
+    const [result] = await pool.query(
+      `INSERT INTO requests 
+        (vendor_name, invoice_scope, invoice_reference, invoice_number, comments,
+         base_value, gst, freight_insurance, ipc_amount, tds, penalty,
+         payment_on_hold, mobilization_advance_recovery, amount_paid, retention_amount,
+         pdf_path, created_by, status, payment_status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING_QS', 'PENDING', NOW(), NOW())`,
+      [
+        vendor_name, invoice_scope, invoice_reference, invoice_number,
+        comments, base_value, gst, freight_insurance, ipc_amount, tds,
+        penalty, payment_on_hold, mobilization_advance_recovery,
+        amount_paid, retention_amount, pdf_path, req.user.id
+      ]
+    )
+
+    const requestId = result.insertId
+
+    // Add history
+    await pool.query(
+      `INSERT INTO approval_history 
+        (request_id, role, action, comment, user_name, created_at, updated_at)
+       VALUES (?, 'EMPLOYEE', 'SUBMITTED', 'Request created', ?, NOW(), NOW())`,
+      [requestId, req.user.name]
+    )
+
+    res.status(201).json({ message: "Request submitted", id: requestId })
+
+  } catch (err) {
+    console.error("Create Request Error:", err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
+   GET REQUEST LIST (ROLE BASED)
+---------------------------------------- */
+router.get("/materials", authenticate, async (req, res) => {
+  try {
+    let query = "SELECT * FROM requests"
+    const params = []
+
+    if (req.user.role === "EMPLOYEE") {
+      query += " WHERE created_by = ?"
+      params.push(req.user.id)
+    } else if (req.user.role === "QS") {
+      query += " WHERE status = 'PENDING_QS'"
+    } else if (req.user.role === "ZCM") {
+      query += " WHERE status = 'PENDING_ZCM'"
+    } else if (req.user.role === "HOD") {
+      query += " WHERE status = 'PENDING_HOD'"
+    } else if (req.user.role === "FM") {
+      query += " WHERE status = 'PENDING_FM'"
+    }
+
+    query += " ORDER BY created_at DESC"
+
+    const [requests] = await pool.query(query, params)
+
+    const formatted = requests.map(r => ({
+      ...r,
+      ticket_id: r.id,
+      project_details: r.invoice_scope,
+      sheet_no: r.invoice_reference,
+      requirement_date: r.created_at,
+      delivery_place: r.vendor_name,
+      status_track: r.status,
+    }))
+
+    res.json(formatted)
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
+   GET REQUEST DETAILS
+---------------------------------------- */
+router.get("/pending-material-requests/details", authenticate, async (req, res) => {
+  try {
+    const id = req.query["ticket-id"]
+
+    const [requests] = await pool.query(
+      "SELECT * FROM requests WHERE id = ?",
+      [id]
+    )
+
+    if (requests.length === 0) {
+      return res.status(404).json({ message: "Request not found" })
+    }
+
+    const request = requests[0]
+
+    const [history] = await pool.query(
+      "SELECT * FROM approval_history WHERE request_id = ? ORDER BY created_at ASC",
+      [id]
+    )
+
+    res.json({
+      request: {
+        ...request,
+        ticket_id: request.id,
+        project_details: request.invoice_scope,
+        sheet_no: request.invoice_reference,
+        requirement_date: request.created_at,
+        delivery_place: request.vendor_name,
+        status_track: request.status,
+        attachment: request.pdf_path
+      },
+      items: [],
+      history
+    })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
+   UPDATE STATUS (APPROVE / REJECT / HOLD)
+---------------------------------------- */
+router.put("/pending-material-requests/update-status", authenticate, upload.single("file"), async (req, res) => {
+  try {
+    const { ticket_id, action, remarks } = req.body
+
+    const [requests] = await pool.query("SELECT * FROM requests WHERE id = ?", [ticket_id])
+
+    if (requests.length === 0) {
+      return res.status(404).json({ message: "Request not found" })
+    }
+
+    const request = requests[0]
+    const userRole = req.user.role
+
+    let nextStatus = request.status
+    let nextPaymentStatus = request.payment_status
+
+    /* --- BUSINESS LOGIC --- */
+    if (action === "REJECT") {
+      nextStatus = "REJECTED"
+
+    } else if (action === "HOLD") {
+      if (userRole === "ZCM") nextStatus = "ON_HOLD_ZCM"
+      if (userRole === "HOD") nextStatus = "ON_HOLD_HOD"
+
+    } else if (action === "SEND_BACK" && userRole === "QS") {
+      nextStatus = "SENT_BACK_EMPLOYEE"
+
+    } else if (action === "APPROVE") {
+      if (userRole === "QS") nextStatus = "PENDING_ZCM"
+      else if (userRole === "ZCM") nextStatus = "PENDING_HOD"
+      else if (userRole === "HOD") nextStatus = "PENDING_FM"
+      else if (userRole === "FM") {
+        nextStatus = "APPROVED"
+        nextPaymentStatus = "SCHEDULED"
+      }
+    }
+
+    /* --- UPDATE IN DB --- */
+    await pool.query(
+      "UPDATE requests SET status = ?, payment_status = ?, updated_at = NOW() WHERE id = ?",
+      [nextStatus, nextPaymentStatus, ticket_id]
+    )
+
+    await pool.query(
+      `INSERT INTO approval_history 
+         (request_id, role, action, comment, user_name, created_at, updated_at) 
+       VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
+      [ticket_id, userRole, action, remarks, req.user.name]
+    )
+
+    res.json({ message: "Status updated", status: nextStatus })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+module.exports = router
