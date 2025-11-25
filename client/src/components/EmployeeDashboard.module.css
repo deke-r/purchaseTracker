@@ -1,0 +1,156 @@
+/* Container & Layout */
+.pageContainer {
+    min-height: 100vh;
+    background: #fafafa;
+    padding: 2rem 1rem;
+}
+
+.dashboardWrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header Section */
+.header {
+    background: #ffffff;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 400;
+    margin: 0 0 0.5rem 0;
+    color: #212121;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    margin: 0;
+    color: #757575;
+}
+
+/* Grid Layout */
+.cardsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Card Styles */
+.card {
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.cardHeader {
+    background: #ffffff;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.cardTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #212121;
+    margin: 0;
+}
+
+.cardBody {
+    padding: 1.5rem;
+}
+
+/* Menu Items */
+.menuList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.menuItem {
+    display: block;
+    padding: 1rem 1.25rem;
+    background: #fafafa;
+    color: #212121;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.menuItem:hover {
+    background: #f0f0f0;
+    border-left-color: #0C4379;
+    color: #212121;
+    padding-left: 1.5rem;
+}
+
+.menuItem:active {
+    background: #e8e8e8;
+}
+
+/* Icon for menu items */
+.menuIcon {
+    margin-right: 0.75rem;
+    font-size: 1rem;
+}
+
+/* Empty State */
+.emptyState {
+    background: #ffffff;
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.emptyStateText {
+    color: #757575;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .pageContainer {
+        padding: 1rem 0.5rem;
+    }
+
+    .header {
+        padding: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.875rem;
+    }
+
+    .cardsGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .cardBody {
+        padding: 1rem;
+    }
+
+    .menuItem {
+        padding: 0.875rem 1rem;
+    }
+
+    .menuItem:hover {
+        padding-left: 1.25rem;
+    }
+}

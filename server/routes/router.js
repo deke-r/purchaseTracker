@@ -288,4 +288,118 @@ router.put("/pending-material-requests/update-status", authenticate, upload.sing
   }
 })
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* -------------------------------------
+   GET ACCOUNT DETAILS (CURRENT USER)
+---------------------------------------- */
+router.get("/account", authenticate, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT id, name, email, role, department, status, created_at FROM users WHERE id = ?",
+      [req.user.id]
+    )
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    console.log(rows)
+
+    res.json(rows[0])
+
+  } catch (err) {
+    console.error("GET /account error:", err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
+   UPDATE ACCOUNT DETAILS (CURRENT USER)
+   - Update name / department
+   - Optional password change
+---------------------------------------- */
+router.put("/account", authenticate, async (req, res) => {
+  const { name, currentPassword, newPassword, confirmPassword } = req.body;
+
+  try {
+    const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [req.user.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = rows[0];
+
+    // Validate name
+    if (!name || name.trim() === "") {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    let hashedPassword = null;
+
+    // If user tries to change password
+    if (newPassword || confirmPassword || currentPassword) {
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        return res.status(400).json({ message: "Please fill all password fields" });
+      }
+
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: "New passwords do not match" });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.pass);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      hashedPassword = await bcrypt.hash(newPassword, salt);
+    }
+
+    // Build update query ONLY for name + password
+    let query = "UPDATE users SET name = ?";
+    const params = [name];
+
+    if (hashedPassword) {
+      query += ", pass = ?";
+      params.push(hashedPassword);
+    }
+
+    query += " WHERE id = ?";
+    params.push(req.user.id);
+
+    await pool.query(query, params);
+
+    const [updatedUser] = await pool.query(
+      "SELECT id, name, email, role, department, status, created_at FROM users WHERE id = ?",
+      [req.user.id]
+    );
+
+    res.json({
+      message: hashedPassword
+        ? "Profile and password updated successfully"
+        : "Profile updated successfully",
+      user: updatedUser[0],
+    });
+
+  } catch (err) {
+    console.error("PUT /account error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
 module.exports = router

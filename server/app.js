@@ -3,6 +3,7 @@ const cors = require("cors")
 const path = require("path")
 const pool = require("./db/database")
 const apiRoutes = require("./routes/router")
+const projectRoutes=require("./routes/project")
 const bcrypt = require("bcryptjs")
 const dotenv = require("dotenv")
 const fs = require("fs")
@@ -20,6 +21,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
 // Routes
 app.use("/", apiRoutes)
+app.use("/project",projectRoutes)
 
 const PORT = process.env.PORT || 5000
 

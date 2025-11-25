@@ -1,63 +1,62 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import styles from './EmployeeDashboard.module.css'
 
 export const EmployeeDashboard = () => {
-  return (
-    <>
-       <div className="container-fluid mt-5">
-        <div className="container">
-            <div className="row">
-                <div className="col-md-6">
-                    <div className="container  box_sdw11">
-                        <div className="row bg-b text-light ">
-                            <div className="col-12 py-2 f_13 fw-semibold text-center">
-                                Material Requests
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col-12 py-2 f_14 fw-semibold text-start">
-                                <div className="container mt-2">
-                                    <Link to='/dashboard/employee/request-for-material' className='text-decoration-none'>
-                                 <div className="row bg-primary bg-g rounded-2 py-2 my-2  text-light">
-                                    <div className="col-md-12">
-                                    Request for material
-                                    </div>
-                                 </div>
-                                    </Link>
-                                 <div className="row bg-primary bg-g rounded-2  py-2 my-2 text-light">
-                                    <div className="col-md-12 f_14 fw-semibold">
-                                    Account Details
-                                    </div>
-                                 </div>
-                                </div>
-                              
-                            </div>
-                        </div>
-                    </div>
-                    
+    return (
+        <div className={styles.pageContainer}>
+            <div className={styles.dashboardWrapper}>
+
+                {/* Header Section */}
+                <div className={styles.header}>
+                    <h1 className={styles.title}>Employee Dashboard</h1>
+                    <p className={styles.subtitle}>
+                        Access your project details, material requests, and account information
+                    </p>
                 </div>
 
-                <div className="col-md-6">
-                    
+                {/* Cards Grid */}
+                <div className={styles.cardsGrid}>
+
+                    {/* Quick Actions Card */}
+                    <div className={styles.card}>
+                        <div className={styles.cardHeader}>
+                            <h2 className={styles.cardTitle}>Quick Actions</h2>
+                        </div>
+                        <div className={styles.cardBody}>
+                            <div className={styles.menuList}>
+                                <Link to='/dashboard/project/details' className={styles.menuItem}>
+                                    <span className={styles.menuIcon}>📋</span>
+                                    Project Details
+                                </Link>
+
+                                <Link to='/dashboard/employee/request-for-material' className={styles.menuItem}>
+                                    <span className={styles.menuIcon}>📦</span>
+                                    Request for Material
+                                </Link>
+
+                                <Link to='/dashboard/account/details' className={styles.menuItem}>
+                                    <span className={styles.menuIcon}>👤</span>
+                                    Account Details
+                                </Link>
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Placeholder for future content */}
+                    <div className={styles.card}>
+                        <div className={styles.cardHeader}>
+                            <h2 className={styles.cardTitle}>Recent Activity</h2>
+                        </div>
+                        <div className={styles.cardBody}>
+                            <div className={styles.emptyState}>
+                                <p className={styles.emptyStateText}>No recent activity to display</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
-
-        {/* <div className="container">
-            <div className="row">
-                <div className="col-md-6">
-                <div className="container mt-2">
-                                 <div className="row bg-primary bg-g rounded-2 py-1  text-light">
-                                    <div className="col-md-12 f_14 fw-semibold text-center">
-                                    Request for material
-                                    </div>
-                                 </div>
-                                </div>
-                </div>
-                <div className="col-md-6"></div>
-                </div>
-        </div> */}
-    </div>
-    </>
-  )
+    )
 }

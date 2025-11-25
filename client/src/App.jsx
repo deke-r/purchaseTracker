@@ -8,6 +8,8 @@ import DetailPendingMaterial from './pages/Manager/DetailPendingMaterial';
 import PendingMaterialReqPurchase from './pages/Purchase/PendingMaterialReqPurchase';
 import DetailPendMaterialPurc from './pages/Purchase/DetailPendMaterialPurc';
 import PrivateRoute from './utils/PrivateRoute';
+import { EmployeeAccountDetails } from './pages/EmployeeAccountDetails';
+import ProjectDetails from './pages/ProjectDetails';
 
 
 const App = () => {
@@ -31,6 +33,8 @@ const App = () => {
           <Route path="/dashboard/purchase/pending-material-requests" element={<PendingMaterialReqPurchase />} />
           <Route path="/dashboard/manager/pending-material-requests/details" element={<DetailPendingMaterial />} />
           <Route path="/dashboard/purchase/pending-material-requests/details" element={<DetailPendMaterialPurc />} />
+          <Route path="/dashboard/account/details" element={<EmployeeAccountDetails />} />
+          <Route path="/dashboard/project/details" element={< ProjectDetails/>} />
         </Route>
       </Routes>
     </BrowserRouter>

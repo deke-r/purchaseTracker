@@ -3,6 +3,7 @@
 import axios from "axios"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import styles from "./MaterialRequestForm.module.css"
 
 const MaterialRequestForm = () => {
   const [message, setMessage] = useState("")
@@ -54,121 +55,217 @@ const MaterialRequestForm = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="container-fluid my-5">
-      {message && (
-        <div
-          className={`alert ${messageType === "success" ? "alert-success" : "alert-danger"} mt-3 w-md-25`}
-          style={{ position: "fixed", right: 20, top: 80, zIndex: 999 }}
-        >
-          {message}
+    <div className={styles.pageContainer}>
+      <div className={styles.formWrapper}>
+
+        {/* Alert Message */}
+        {message && (
+          <div className={`${styles.alert} ${messageType === "success" ? styles.alertSuccess : styles.alertError}`}>
+            {message}
+          </div>
+        )}
+
+        {/* Header Section */}
+        <div className={styles.header}>
+          <h1 className={styles.title}>Invoice Approval Request</h1>
+          <p className={styles.subtitle}>
+            Submit invoice details for approval and processing
+          </p>
         </div>
-      )}
 
-      <div className="row mx-md-5 px-md-5">
-        <div className="container pb-4 box_sdw11">
-          <div className="row bg-b text-center text-light rounded-top-2 f_16 fw-semibold py-2">
-            <div className="col-12">Invoice Approval Request</div>
-          </div>
+        {/* Form Content */}
+        <div className={styles.formContent}>
+          <form onSubmit={handleSubmit(onSubmit)}>
 
-          {/* Row 1 */}
-          <div className="row mt-3">
-            <div className="col-md-6 my-2">
-              <label className="form-label fw-semibold text-dark">Vendor Name</label>
-              <input className="form-control" {...register("vendor_name", { required: true })} />
-            </div>
-            <div className="col-md-6 my-2">
-              <label className="form-label fw-semibold text-dark">Invoice Scope</label>
-              <input className="form-control" {...register("invoice_scope")} />
-            </div>
-          </div>
+            {/* Vendor Information Section */}
+            <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>Vendor Information</h2>
 
-          {/* Row 2 */}
-          <div className="row">
-            <div className="col-md-6 my-2">
-              <label className="form-label fw-semibold text-dark">Invoice Reference</label>
-              <input className="form-control" {...register("invoice_reference")} />
-            </div>
-            <div className="col-md-6 my-2">
-              <label className="form-label fw-semibold text-dark">Invoice Number</label>
-              <input className="form-control" {...register("invoice_number", { required: true })} />
-            </div>
-          </div>
+              <div className={styles.formGridTwo}>
+                <div className={styles.formGroup}>
+                  <label className={`${styles.label} ${styles.required}`}>
+                    Vendor Name
+                  </label>
+                  <input
+                    className={styles.input}
+                    {...register("vendor_name", { required: true })}
+                  />
+                </div>
 
-          {/* Row 3 - Numeric Fields */}
-          <div className="row">
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">Base Value</label>
-              <input type="number" step="0.01" className="form-control" {...register("base_value")} />
-            </div>
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">GST</label>
-              <input type="number" step="0.01" className="form-control" {...register("gst")} />
-            </div>
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">Freight / Insurance</label>
-              <input type="number" step="0.01" className="form-control" {...register("freight_insurance")} />
-            </div>
-          </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>
+                    Invoice Scope
+                  </label>
+                  <input
+                    className={styles.input}
+                    {...register("invoice_scope")}
+                  />
+                </div>
+              </div>
 
-          <div className="row">
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">IPC Amount</label>
-              <input type="number" step="0.01" className="form-control" {...register("ipc_amount")} />
-            </div>
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">TDS</label>
-              <input type="number" step="0.01" className="form-control" {...register("tds")} />
-            </div>
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">Penalty</label>
-              <input type="number" step="0.01" className="form-control" {...register("penalty")} />
-            </div>
-          </div>
+              <div className={styles.formGridTwo}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>
+                    Invoice Reference
+                  </label>
+                  <input
+                    className={styles.input}
+                    {...register("invoice_reference")}
+                  />
+                </div>
 
-          <div className="row">
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">Payment on Hold</label>
-              <input type="number" step="0.01" className="form-control" {...register("payment_on_hold")} />
+                <div className={styles.formGroup}>
+                  <label className={`${styles.label} ${styles.required}`}>
+                    Invoice Number
+                  </label>
+                  <input
+                    className={styles.input}
+                    {...register("invoice_number", { required: true })}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">Mob. Advance Recovery</label>
-              <input
-                type="number"
-                step="0.01"
-                className="form-control"
-                {...register("mobilization_advance_recovery")}
-              />
-            </div>
-            <div className="col-md-4 my-2">
-              <label className="form-label fw-semibold text-dark">Retention Amount</label>
-              <input type="number" step="0.01" className="form-control" {...register("retention_amount")} />
-            </div>
-          </div>
 
-          <div className="row">
-            <div className="col-md-12 my-2">
-              <label className="form-label fw-semibold text-dark">Comments</label>
-              <textarea className="form-control" rows="3" {...register("comments")}></textarea>
-            </div>
-          </div>
+            {/* Financial Details Section */}
+            <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>Financial Details</h2>
 
-          <div className="row">
-            <div className="col-md-12 my-2">
-              <label className="form-label fw-semibold text-dark">Upload Invoice (PDF)</label>
-              <input type="file" className="form-control" accept="application/pdf" {...register("file")} />
-            </div>
-          </div>
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Base Value</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("base_value")}
+                  />
+                </div>
 
-          <div className="row mt-4">
-            <div className="col-md-12">
-              <button type="submit" className="btn bg-b text-light w-100 fw-bold" disabled={loading}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>GST</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("gst")}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Freight / Insurance</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("freight_insurance")}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>IPC Amount</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("ipc_amount")}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>TDS</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("tds")}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Penalty</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("penalty")}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Payment on Hold</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("payment_on_hold")}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Mob. Advance Recovery</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("mobilization_advance_recovery")}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Retention Amount</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className={styles.input}
+                    {...register("retention_amount")}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Information Section */}
+            <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>Additional Information</h2>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Comments</label>
+                <textarea
+                  className={styles.textarea}
+                  rows="3"
+                  {...register("comments")}
+                ></textarea>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Upload Invoice (PDF)</label>
+                <input
+                  type="file"
+                  className={styles.fileInput}
+                  accept="application/pdf"
+                  {...register("file")}
+                />
+              </div>
+            </div>
+
+            {/* Submit Section */}
+            <div className={styles.submitSection}>
+              <button
+                type="submit"
+                className={styles.submitButton}
+                disabled={loading}
+              >
                 {loading ? "Submitting..." : "Submit Invoice for Approval"}
               </button>
             </div>
-          </div>
+
+          </form>
         </div>
       </div>
-    </form>
+    </div>
   )
 }
 

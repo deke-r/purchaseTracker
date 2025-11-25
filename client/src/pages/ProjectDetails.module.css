@@ -1,0 +1,254 @@
+/* Container & Layout */
+.pageContainer {
+    min-height: 100vh;
+    background: #fafafa;
+    padding: 1rem;
+}
+
+.formWrapper {
+    margin: 0 auto;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Section */
+.header {
+    background: #ffffff;
+    padding: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin: 0 0 0.5rem 0;
+    color: #212121;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #757575;
+}
+
+/* Form Content */
+.formContent {
+    padding: 2rem;
+}
+
+/* Loading State */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #e0e0e0;
+    border-top: 2px solid #0C4379;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loadingText {
+    color: #757575;
+    font-size: 0.9rem;
+}
+
+/* Form Sections */
+.section {
+    margin-bottom: 2rem;
+}
+
+.sectionTitle {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #212121;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.sectionIcon {
+    display: none;
+}
+
+/* Form Grid */
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+/* Form Groups */
+.formGroup {
+    margin-bottom: 0;
+}
+
+.label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #424242;
+    margin-bottom: 0.5rem;
+}
+
+.required::after {
+    content: ' *';
+    color: #212121;
+}
+
+/* Input Fields */
+.input,
+.textarea {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    color: #212121;
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+    transition: border-color 0.2s ease;
+    font-family: inherit;
+}
+
+.input:focus,
+.textarea:focus {
+    outline: none;
+    border-color: #0C4379;
+}
+
+.input:disabled {
+    background: #f5f5f5;
+    color: #757575;
+    cursor: not-allowed;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.5;
+}
+
+/* File Input */
+.fileInput {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.85rem;
+    color: #424242;
+    background: #fafafa;
+    border: 1px dashed #d0d0d0;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.fileInput:hover {
+    border-color: #0C4379;
+}
+
+.fileInput:focus {
+    outline: none;
+    border-color: #0C4379;
+}
+
+/* Error Message */
+.errorMessage {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    color: #212121;
+}
+
+/* Badge for readonly fields */
+.readonlyBadge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+    background: #e0e0e0;
+    color: #616161;
+    margin-left: 0.5rem;
+}
+
+/* Submit Section */
+.submitSection {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.submitButton {
+    padding: 0.75rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #ffffff;
+    background: #0C4379;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.submitButton:hover {
+    background: #094166;
+}
+
+.submitButton:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .formGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .pageContainer {
+        padding: 1rem 0.5rem;
+    }
+
+    .header {
+        padding: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .formContent {
+        padding: 1.5rem;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .submitButton {
+        width: 100%;
+    }
+}
+
+/* Optional Badge/Tag Styles */
+.optionalTag {
+    font-size: 0.75rem;
+    color: #9e9e9e;
+    font-weight: 400;
+}

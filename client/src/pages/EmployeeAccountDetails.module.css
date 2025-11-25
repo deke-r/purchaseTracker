@@ -1,0 +1,350 @@
+/* Container & Layout */
+.pageContainer {
+    min-height: 100vh;
+    background: #fafafa;
+    padding: 2rem 1rem;
+}
+
+.contentWrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header Section */
+.header {
+    background: #ffffff;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 400;
+    margin: 0 0 0.5rem 0;
+    color: #212121;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    margin: 0;
+    color: #757575;
+}
+
+/* Loading State */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #e0e0e0;
+    border-top: 2px solid #0C4379;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loadingText {
+    color: #757575;
+    font-size: 0.9rem;
+}
+
+/* Layout Grid */
+.gridLayout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Profile Card */
+.profileCard {
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.profileHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #0C4379;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.profileInfo {
+    flex: 1;
+}
+
+.profileName {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #212121;
+    margin: 0 0 0.5rem 0;
+}
+
+.roleBadge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #f0f0f0;
+    color: #424242;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 12px;
+}
+
+.profileDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.detailItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detailLabel {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #757575;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detailValue {
+    font-size: 0.9rem;
+    color: #212121;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 0.5rem 0;
+}
+
+/* Form Card */
+.formCard {
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.formHeader {
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.formTitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #212121;
+    margin: 0;
+}
+
+/* Alerts */
+.alert {
+    padding: 0.875rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.alertError {
+    background: #fef2f2;
+    color: #991b1b;
+    border-left: 3px solid #dc2626;
+}
+
+.alertSuccess {
+    background: #f0fdf4;
+    color: #166534;
+    border-left: 3px solid #16a34a;
+}
+
+/* Form Elements */
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.formGridThree {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #424242;
+    margin-bottom: 0.5rem;
+}
+
+.input {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    color: #212121;
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+    transition: border-color 0.2s ease;
+    font-family: inherit;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #0C4379;
+}
+
+.input:disabled {
+    background: #f5f5f5;
+    color: #757575;
+    cursor: not-allowed;
+}
+
+.helpText {
+    font-size: 0.75rem;
+    color: #757575;
+    margin-top: 0.25rem;
+}
+
+/* Section Divider */
+.sectionDivider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 2rem 0;
+}
+
+.sectionHeader {
+    margin-bottom: 1rem;
+}
+
+.sectionTitle {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #212121;
+    margin: 0 0 0.25rem 0;
+}
+
+.sectionSubtitle {
+    font-size: 0.8rem;
+    color: #757575;
+    margin: 0;
+}
+
+/* Submit Section */
+.submitSection {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.submitButton {
+    padding: 0.75rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #ffffff;
+    background: #0C4379;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.submitButton:hover {
+    background: #094166;
+}
+
+.submitButton:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .gridLayout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .pageContainer {
+        padding: 1rem 0.5rem;
+    }
+
+    .header {
+        padding: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .profileCard,
+    .formCard {
+        padding: 1.5rem;
+    }
+
+    .formGrid,
+    .formGridThree {
+        grid-template-columns: 1fr;
+    }
+
+    .submitButton {
+        width: 100%;
+    }
+}
