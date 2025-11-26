@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { toast } from "react-toastify";
 import styles from "./ProjectDetails.module.css";
 
 const ProjectDetails = () => {
   const [loading, setLoading] = useState(true);
+  const [rmId, setRmId] = useState(null); // Store rm_id for reference
 
   const {
     register,
@@ -26,7 +28,12 @@ const ProjectDetails = () => {
           // Autofill values
           setValue("name", res.data.name);
           setValue("designation", res.data.designation);
-          setValue("rm_name", res.data.manager_name);
+          setValue("rm_name", res.data.rm_name);
+
+          // Store rm_id for reference
+          if (res.data.rm_id) {
+            setRmId(res.data.rm_id);
+          }
 
           setLoading(false);
         })
@@ -52,19 +59,38 @@ const ProjectDetails = () => {
     }
 
     try {
+      const token = localStorage.getItem("token");
+
       await axios.post(
         `${import.meta.env.VITE_URL_API}/project/add`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" }
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${token}`
+          }
         }
       );
 
-      alert("Project details submitted successfully!");
+      // Show success toast
+      toast.success("Project details submitted successfully!", {
+        position: "top-right",
+        autoClose: 3000
+      });
+
+      // Reset form but preserve employee information
+      const { name, designation, rm_name } = data;
       reset();
+      setValue("name", name);
+      setValue("designation", designation);
+      setValue("rm_name", rm_name);
     } catch (err) {
       console.error(err);
-      alert("Error submitting project details. Please try again.");
+      // Show error toast
+      toast.error("Error submitting project details. Please try again.", {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 

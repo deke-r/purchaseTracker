@@ -109,15 +109,15 @@
 
 ::-webkit-scrollbar {
   width: 10px;
-  height: 8px;
+  height: 2px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0C4379; 
+  background: white; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: white; 
+  background-color: #0C4379; 
   border-radius: 0px;
   border: 2px solid transparent;
   background-clip: content-box;

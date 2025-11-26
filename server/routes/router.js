@@ -402,4 +402,55 @@ router.put("/account", authenticate, async (req, res) => {
 
 
 
+// GET projects by user ID
+router.get("/projects/user/:userId", authenticate, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [projects] = await pool.query(
+      `SELECT * FROM project_details WHERE user_id = ? ORDER BY created_at DESC`,
+      [userId]
+    );
+
+    res.json(projects);
+  } catch (err) {
+    console.error("Error fetching user projects:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// GET expenses by user ID (for material requests)
+router.get("/expenses/user/:userId", authenticate, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [expenses] = await pool.query(
+      `SELECT * FROM material_expenses WHERE user_id = ? ORDER BY created_at DESC`,
+      [userId]
+    );
+
+    res.json(expenses);
+  } catch (err) {
+    console.error("Error fetching user expenses:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// GET material requests by user ID
+router.get("/material-requests/user/:userId", authenticate, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [requests] = await pool.query(
+      `SELECT * FROM material_requests WHERE user_id = ? ORDER BY created_at DESC`,
+      [userId]
+    );
+
+    res.json(requests);
+  } catch (err) {
+    console.error("Error fetching material requests:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
 module.exports = router

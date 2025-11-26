@@ -4,7 +4,7 @@ import MaterialRequestForm from '../../components/MaterialRequestForm'
 const RequestMaterial = () => {
   return (
     <>
-    <MaterialRequestForm/>
+      <MaterialRequestForm />
     </>
   )
 }

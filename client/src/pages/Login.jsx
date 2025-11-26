@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 import logo from '../assets/images/Sense_project_logo.png';
 import { Link } from 'react-router-dom';
 import styles from './Login.module.css';
@@ -24,8 +25,21 @@ const Login = () => {
       let token = response.data.token;
       localStorage.setItem('token', token);
 
+      // Decode token to get user role
+      const decoded = jwtDecode(token);
+      console.log("Decoded token:", decoded);
+      console.log("User role:", decoded.role);
+      console.log("Role comparison:", decoded.role === 'admin', decoded.role);
+
       if (response) {
-        window.location.href = "/dashboard";
+        // Redirect based on role
+        if (decoded.role === 'admin') {
+          console.log("Redirecting to admin dashboard");
+          window.location.href = "/dashboard/admin";
+        } else {
+          console.log("Redirecting to regular dashboard");
+          window.location.href = "/dashboard";
+        }
       }
     } catch (error) {
       console.error('Login failed:', error);
