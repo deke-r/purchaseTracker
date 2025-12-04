@@ -41,6 +41,7 @@ const App = () => {
             <Route path="/dashboard/admin/departments" element={<ManageDepartments />} />
             <Route path="/dashboard/my-projects" element={<MyProjects />} />
             <Route path="/dashboard/view-material-requests" element={<ViewMaterialRequests />} />
+            <Route path="/dashboard/view-material-requests/details" element={<DetailPendingMaterial />} />
             <Route path="/dashboard/employee/request-for-material" element={<RequestMaterial />} />
             <Route path="/dashboard/manager/pending-material-requests" element={<PendingMaterialRequests />} />
             <Route path="/dashboard/purchase/pending-material-requests" element={<PendingMaterialReqPurchase />} />

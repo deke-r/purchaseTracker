@@ -113,7 +113,7 @@ router.post("/material-request", authenticate, upload.single("file"), async (req
          base_value, gst, freight_insurance, ipc_amount, tds, penalty,
          payment_on_hold, mobilization_advance_recovery, amount_paid, retention_amount,
          pdf_path, created_by, status, payment_status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING_QS', 'PENDING', NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 'PENDING', NOW(), NOW())`,
       [
         vendor_name, invoice_scope, invoice_reference, invoice_number,
         comments, base_value, gst, freight_insurance, ipc_amount, tds,
@@ -151,14 +151,10 @@ router.get("/materials", authenticate, async (req, res) => {
     if (req.user.role === "EMPLOYEE") {
       query += " WHERE created_by = ?"
       params.push(req.user.id)
-    } else if (req.user.role === "QS") {
-      query += " WHERE status = 'PENDING_QS'"
-    } else if (req.user.role === "ZCM") {
-      query += " WHERE status = 'PENDING_ZCM'"
-    } else if (req.user.role === "HOD") {
-      query += " WHERE status = 'PENDING_HOD'"
-    } else if (req.user.role === "FM") {
-      query += " WHERE status = 'PENDING_FM'"
+    } else if (req.user.role === "manager") {
+      query += " WHERE status = 1" // PENDING_MANAGER
+    } else if (req.user.role === "purchase") {
+      query += " WHERE status = 2" // PENDING_PURCHASE
     }
 
     query += " ORDER BY created_at DESC"
@@ -248,22 +244,20 @@ router.put("/pending-material-requests/update-status", authenticate, upload.sing
 
     /* --- BUSINESS LOGIC --- */
     if (action === "REJECT") {
-      nextStatus = "REJECTED"
+      nextStatus = 4; // REJECTED
 
     } else if (action === "HOLD") {
-      if (userRole === "ZCM") nextStatus = "ON_HOLD_ZCM"
-      if (userRole === "HOD") nextStatus = "ON_HOLD_HOD"
+      nextStatus = 5; // ON_HOLD
 
-    } else if (action === "SEND_BACK" && userRole === "QS") {
-      nextStatus = "SENT_BACK_EMPLOYEE"
+    } else if (action === "SEND_BACK") {
+      nextStatus = 6; // SENT_BACK_EMPLOYEE
 
     } else if (action === "APPROVE") {
-      if (userRole === "QS") nextStatus = "PENDING_ZCM"
-      else if (userRole === "ZCM") nextStatus = "PENDING_HOD"
-      else if (userRole === "HOD") nextStatus = "PENDING_FM"
-      else if (userRole === "FM") {
-        nextStatus = "APPROVED"
-        nextPaymentStatus = "SCHEDULED"
+      if (userRole === "manager") {
+        nextStatus = 2; // PENDING_PURCHASE
+      } else if (userRole === "purchase") {
+        nextStatus = 3; // APPROVED
+        nextPaymentStatus = "SCHEDULED";
       }
     }
 
@@ -282,6 +276,51 @@ router.put("/pending-material-requests/update-status", authenticate, upload.sing
 
     res.json({ message: "Status updated", status: nextStatus })
 
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+// Cancel material request (for employees)
+router.put("/material-requests/cancel", authenticate, async (req, res) => {
+  try {
+    const { ticket_id, remarks } = req.body
+    const userId = req.user.id
+
+    const [requests] = await pool.query("SELECT * FROM requests WHERE id = ?", [ticket_id])
+
+    if (requests.length === 0) {
+      return res.status(404).json({ message: "Request not found" })
+    }
+
+    const request = requests[0]
+
+    // Check if user is the creator of the request
+    if (request.created_by !== userId) {
+      return res.status(403).json({ message: "You can only cancel your own requests" })
+    }
+
+    // Check if request is still pending (status 1 or 2)
+    if (request.status !== 1 && request.status !== 2) {
+      return res.status(400).json({ message: "Request cannot be cancelled at this stage" })
+    }
+
+    // Update status to CANCELLED (7)
+    await pool.query(
+      "UPDATE requests SET status = 7 WHERE id = ?",
+      [ticket_id]
+    )
+
+    // Add to approval history
+    await pool.query(
+      `INSERT INTO approval_history 
+       (request_id, user_id, role, action, comment) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [ticket_id, userId, 'employee', 'CANCELLED', remarks || 'Request cancelled by employee']
+    )
+
+    res.json({ message: "Request cancelled successfully" })
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: "Server error" })
@@ -442,7 +481,7 @@ router.get("/material-requests/user/:userId", authenticate, async (req, res) => 
     const { userId } = req.params;
 
     const [requests] = await pool.query(
-      `SELECT * FROM material_requests WHERE user_id = ? ORDER BY created_at DESC`,
+      `SELECT * FROM requests WHERE created_by = ? ORDER BY created_at DESC`,
       [userId]
     );
 

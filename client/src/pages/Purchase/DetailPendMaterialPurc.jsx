@@ -3,147 +3,242 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useLocation, useNavigate } from "react-router-dom"
-import { FileText } from "lucide-react"
+import { FileText, CheckCircle, XCircle, ArrowLeft, Ban } from "lucide-react"
+import styles from "./DetailPendMaterialPurc.module.css"
+import { jwtDecode } from "jwt-decode"
 
-const DetailPendMaterialPurc = () => {
+const DetailPendingMaterial = () => {
   const [requestData, setRequestData] = useState(null)
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
   const [remarksInput, setRemarksInput] = useState("")
-  const [selectedFile, setSelectedFile] = useState(null) // Kept for UI compatibility, though backend might not use it
-
+  const [userRole, setUserRole] = useState("")
+  const [userId, setUserId] = useState(null)
   const navigate = useNavigate()
   const location = useLocation()
   const ticketId = new URLSearchParams(location.search).get("ticket-id")
 
+
+  useEffect(() => {
+    // Decode token to get user role and ID
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserRole(decoded.role);
+        setUserId(decoded.id);
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (ticketId) {
+      console.log("Fetching details for ticket-id:", ticketId);
       axios
         .get(`${import.meta.env.VITE_URL_API}/pending-material-requests/details?ticket-id=${ticketId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         })
         .then((res) => {
+          console.log("Response received:", res.data);
           setRequestData(res.data.request)
           setHistory(res.data.history || [])
         })
+        .catch((error) => {
+          console.error("Error fetching request details:", error);
+          alert("Error loading request details: " + (error.response?.data?.message || error.message));
+        })
         .finally(() => setLoading(false))
+    } else {
+      console.log("No ticket-id found in URL");
+      setLoading(false);
     }
   }, [ticketId])
 
   const handleAction = async (action) => {
-    // action: 'APPROVE', 'REJECT'
     if (!remarksInput && action !== "APPROVE") {
-      alert("Remarks required")
+      alert("Remarks required for this action")
       return
     }
 
+    const endpoint = action === "CANCEL"
+      ? `${import.meta.env.VITE_URL_API}/material-requests/cancel`
+      : `${import.meta.env.VITE_URL_API}/pending-material-requests/update-status`;
+
     try {
-      const formData = new FormData()
-      formData.append("ticket_id", ticketId)
-      formData.append("action", action) // 'APPROVE' or 'REJECT'
-      formData.append("remarks", remarksInput)
-      if (selectedFile) formData.append("file", selectedFile)
-
-      await axios.put(`${import.meta.env.VITE_URL_API}/pending-material-requests/update-status`, formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
+      await axios.put(
+        endpoint,
+        {
+          ticket_id: ticketId,
+          action,
+          remarks: remarksInput,
         },
-      })
-
-      alert(`Request ${action === "APPROVE" ? "approved" : "rejected"} successfully.`)
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      )
+      alert("Success")
       navigate(-1)
-    } catch (err) {
-      console.error("Status update failed:", err)
+    } catch (e) {
       alert("Error updating status")
     }
   }
 
-  if (loading) return <div>Loading...</div>
-  if (!requestData) return <div>Not Found</div>
+  if (loading) return <div className={styles.loading}>Loading...</div>
+  if (!requestData) return <div className={styles.error}>Request Not Found</div>
 
   return (
-    <div className="container mt-4">
-      <div className="card shadow-sm mb-4">
-        <div className="card-header bg-b text-white fw-bold">Invoice Details #{requestData.invoice_number}</div>
-        <div className="card-body">
-          <div className="row">
-            <div className="col-md-6">
-              <strong>Vendor:</strong> {requestData.vendor_name}
-            </div>
-            <div className="col-md-6">
-              <strong>Scope:</strong> {requestData.invoice_scope}
-            </div>
-            <div className="col-md-6">
-              <strong>Ref:</strong> {requestData.invoice_reference}
-            </div>
-            <div className="col-md-6">
-              <strong>Amount Paid:</strong> {requestData.amount_paid}
-            </div>
-            <div className="col-md-6">
-              <strong>Status:</strong> <span className="badge bg-info">{requestData.status_track}</span>
-            </div>
-            <div className="col-md-6">
-              <strong>Attachment:</strong>
-              {requestData.attachment && (
-                <a
-                  href={`${import.meta.env.VITE_URL_API}/uploads/${requestData.attachment}`}
-                  target="_blank"
-                  className="ms-2"
-                  rel="noreferrer"
-                >
-                  <FileText size={16} /> View PDF
-                </a>
-              )}
-            </div>
-          </div>
+    <div className={styles.container}>
+      <button onClick={() => navigate(-1)} className={styles.backButton}>
+        <ArrowLeft size={20} /> Back to List
+      </button>
+
+      <div className={styles.header}>
+        <h1 className={styles.title}>Request Details</h1>
+        <div className={styles.statusBadge}>
+          Status: {requestData.status === 1 ? 'Pending Manager' : requestData.status === 2 ? 'Pending Purchase' : 'Processed'}
         </div>
       </div>
 
-      {/* Approval History */}
-      <div className="card shadow-sm mb-4">
-        <div className="card-header bg-secondary text-white">Approval History</div>
-        <div className="card-body">
-          <ul className="list-group">
-            {history.map((h, i) => (
-              <li key={i} className="list-group-item">
-                <strong>{h.role}</strong> ({h.user_name}) - {h.action}
-                <br />
-                <small className="text-muted">{h.comment}</small>
-                <span className="float-end text-muted" style={{ fontSize: "0.8rem" }}>
-                  {new Date(h.createdAt).toLocaleString()}
-                </span>
-              </li>
-            ))}
-          </ul>
+      {/* Main Details Section */}
+      <div className={styles.detailsSection}>
+        <div className={styles.sectionHeader}>
+          <h2>Invoice & Financial Information</h2>
         </div>
+
+        <div className={styles.compactGrid}>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Vendor Name</span>
+            <span className={styles.value}>{requestData.vendor_name}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Invoice Number</span>
+            <span className={styles.value}>{requestData.invoice_number}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Scope</span>
+            <span className={styles.value}>{requestData.invoice_scope}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Reference</span>
+            <span className={styles.value}>{requestData.invoice_reference}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Base Value</span>
+            <span className={styles.value}>{requestData.base_value}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>GST</span>
+            <span className={styles.value}>{requestData.gst}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Freight/Insurance</span>
+            <span className={styles.value}>{requestData.freight_insurance}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>IPC Amount</span>
+            <span className={styles.value}>{requestData.ipc_amount}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>TDS</span>
+            <span className={styles.value}>{requestData.tds}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Penalty</span>
+            <span className={styles.value}>{requestData.penalty}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Payment on Hold</span>
+            <span className={styles.value}>{requestData.payment_on_hold}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Mob. Adv. Recovery</span>
+            <span className={styles.value}>{requestData.mobilization_advance_recovery}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Retention Amount</span>
+            <span className={styles.value}>{requestData.retention_amount}</span>
+          </div>
+          <div className={styles.gridItem}>
+            <span className={styles.label}>Total Amount Paid</span>
+            <span className={styles.value} style={{ color: '#16a34a' }}>{requestData.amount_paid}</span>
+          </div>
+        </div>
+
+        {requestData.attachment && (
+          <div className={styles.attachment}>
+            <a
+              href={`${import.meta.env.VITE_URL_API}/uploads/${requestData.attachment}`}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.downloadLink}
+            >
+              <FileText size={16} /> View Invoice PDF
+            </a>
+          </div>
+        )}
       </div>
 
-      {/* Actions */}
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <div className="mb-3">
-            <label>Upload File (Optional):</label>
-            <input type="file" className="form-control" onChange={(e) => setSelectedFile(e.target.files[0])} />
-          </div>
+      {/* Action Section */}
+      <div className={styles.actionSection}>
+        <h2 className={styles.actionTitle}>Take Action</h2>
+        <div className={styles.actionGrid}>
           <textarea
-            className="form-control mb-3"
-            placeholder="Remarks..."
+            className={styles.textarea}
+            placeholder={
+              userRole === 'employee' && userId === requestData.created_by
+                ? "Enter reason for cancellation..."
+                : "Enter remarks here (required for Reject)..."
+            }
             value={remarksInput}
             onChange={(e) => setRemarksInput(e.target.value)}
           ></textarea>
-          <div className="d-flex gap-2">
-            <button className="btn btn-success" onClick={() => handleAction("APPROVE")}>
-              Approve
-            </button>
-            <button className="btn btn-danger" onClick={() => handleAction("REJECT")}>
-              Reject
-            </button>
+
+          <div className={styles.actionButtons}>
+            {userRole === 'employee' && userId === requestData.created_by ? (
+              // Show Cancel button for employees who created the request
+              <button className={`${styles.btn} ${styles.btnCancel}`} onClick={() => handleAction("CANCEL")}>
+                <Ban size={20} /> Cancel Request
+              </button>
+            ) : (
+              // Show Approve/Reject for managers and purchase users
+              <>
+                <button className={`${styles.btn} ${styles.btnApprove}`} onClick={() => handleAction("APPROVE")}>
+                  <CheckCircle size={20} /> Approve
+                </button>
+                <button className={`${styles.btn} ${styles.btnReject}`} onClick={() => handleAction("REJECT")}>
+                  <XCircle size={20} /> Reject
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
+
+      {/* History Section */}
+      <div className={styles.historySection}>
+        <h3 className={styles.historyTitle}>Approval History</h3>
+        <div className={styles.timeline}>
+          {history.map((h, i) => (
+            <div key={i} className={styles.timelineItem}>
+              <div className={styles.timelineHeader}>
+                <span className={styles.role}>{h.role}</span>
+                <span className={styles.user}>({h.user_name})</span>
+                <span className={styles.action}>{h.action}</span>
+              </div>
+              <p className={styles.comment}>{h.comment}</p>
+              <span className={styles.date}>
+                {h.created_at ? new Date(h.created_at).toLocaleString() : 'Date not available'}
+              </span>
+            </div>
+          ))}
+          {history.length === 0 && <p className={styles.noHistory}>No history available</p>}
+        </div>
+      </div>
+
     </div>
   )
 }
 
-export default DetailPendMaterialPurc
+export default DetailPendingMaterial
