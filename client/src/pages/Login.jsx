@@ -130,7 +130,7 @@ const Login = () => {
 
           {/* Forgot Password */}
           <div className={styles.forgotPassword}>
-            <Link className={styles.forgotPasswordLink} to="#">
+            <Link className={styles.forgotPasswordLink} to="/forgot-password">
               Forgot password?
             </Link>
           </div>

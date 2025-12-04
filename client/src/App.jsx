@@ -17,6 +17,9 @@ import ManageUsers from './pages/ManageUsers';
 import ManageDepartments from './pages/ManageDepartments';
 import MyProjects from './pages/MyProjects';
 import ViewMaterialRequests from './pages/ViewMaterialRequests';
+import ForgotPassword from './pages/ForgotPassword';
+import VerifyOTP from './pages/VerifyOTP';
+import ResetPassword from './pages/ResetPassword';
 
 
 const App = () => {
@@ -26,6 +29,9 @@ const App = () => {
         <Routes>
 
           <Route path="/" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
 
           <Route

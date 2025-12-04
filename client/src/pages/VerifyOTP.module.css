@@ -1,0 +1,134 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+    padding: 1rem;
+}
+
+.card {
+    background: white;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.backButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    padding: 0;
+}
+
+.backButton:hover {
+    color: #0C4379;
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+}
+
+.subtitle strong {
+    color: #0C4379;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.otpContainer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.otpInput {
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border: 2px solid #cbd5e1;
+    color: #1e293b;
+    transition: all 0.2s;
+}
+
+.otpInput:focus {
+    outline: none;
+    border-color: #0C4379;
+    box-shadow: 0 0 0 3px rgba(12, 67, 121, 0.1);
+}
+
+.otpInput:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+}
+
+.submitButton {
+    width: 100%;
+    padding: 0.875rem;
+    background: #0C4379;
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+}
+
+.submitButton:hover:not(:disabled) {
+    background: #0a3460;
+}
+
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.resendButton {
+    width: 100%;
+    padding: 0.875rem;
+    background: white;
+    color: #0C4379;
+    border: 1px solid #0C4379;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+}
+
+.resendButton:hover:not(:disabled) {
+    background: #f1f5f9;
+}
+
+.resendButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.note {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    margin-top: 1rem;
+}

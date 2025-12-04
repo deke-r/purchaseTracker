@@ -83,6 +83,154 @@ router.get("/me", authenticate, async (req, res) => {
 })
 
 /* -------------------------------------
+   FORGOT PASSWORD - Send OTP
+---------------------------------------- */
+router.post("/auth/forgot-password", async (req, res) => {
+  const { email } = req.body
+
+  try {
+    // Check if user exists
+    const [users] = await pool.query("SELECT * FROM users WHERE email = ?", [email])
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "Email not found" })
+    }
+
+    const user = users[0]
+
+    // Generate 4-digit OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString()
+
+    // Set expiry time (10 minutes from now)
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
+
+    // Delete any existing OTPs for this user
+    await pool.query("DELETE FROM password_reset_otps WHERE user_id = ?", [user.id])
+
+    // Store OTP in database
+    await pool.query(
+      "INSERT INTO password_reset_otps (user_id, email, otp, expires_at) VALUES (?, ?, ?, ?)",
+      [user.id, email, otp, expiresAt]
+    )
+
+    // Send OTP via email
+    const nodemailer = require("nodemailer")
+
+    const transporter = nodemailer.createTransporter({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+      }
+    })
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: email,
+      subject: "Password Reset OTP",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #0C4379;">Password Reset Request</h2>
+          <p>Hello ${user.name},</p>
+          <p>You have requested to reset your password. Please use the following OTP to proceed:</p>
+          <div style="background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0;">
+            <h1 style="color: #0C4379; letter-spacing: 8px; margin: 0;">${otp}</h1>
+          </div>
+          <p><strong>This OTP will expire in 10 minutes.</strong></p>
+          <p>If you did not request this password reset, please ignore this email.</p>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">This is an automated message, please do not reply.</p>
+        </div>
+      `
+    }
+
+    await transporter.sendMail(mailOptions)
+
+    res.json({ message: "OTP sent to your email" })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
+   VERIFY OTP
+---------------------------------------- */
+router.post("/auth/verify-otp", async (req, res) => {
+  const { email, otp } = req.body
+
+  try {
+    const [otpRecords] = await pool.query(
+      "SELECT * FROM password_reset_otps WHERE email = ? AND otp = ?",
+      [email, otp]
+    )
+
+    if (otpRecords.length === 0) {
+      return res.status(400).json({ message: "Invalid OTP" })
+    }
+
+    const otpRecord = otpRecords[0]
+
+    // Check if OTP has expired
+    if (new Date() > new Date(otpRecord.expires_at)) {
+      await pool.query("DELETE FROM password_reset_otps WHERE id = ?", [otpRecord.id])
+      return res.status(400).json({ message: "OTP has expired" })
+    }
+
+    res.json({ message: "OTP verified successfully" })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
+   RESET PASSWORD
+---------------------------------------- */
+router.post("/auth/reset-password", async (req, res) => {
+  const { email, otp, newPassword } = req.body
+
+  try {
+    // Verify OTP again
+    const [otpRecords] = await pool.query(
+      "SELECT * FROM password_reset_otps WHERE email = ? AND otp = ?",
+      [email, otp]
+    )
+
+    if (otpRecords.length === 0) {
+      return res.status(400).json({ message: "Invalid OTP" })
+    }
+
+    const otpRecord = otpRecords[0]
+
+    // Check if OTP has expired
+    if (new Date() > new Date(otpRecord.expires_at)) {
+      await pool.query("DELETE FROM password_reset_otps WHERE id = ?", [otpRecord.id])
+      return res.status(400).json({ message: "OTP has expired" })
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    // Update user password
+    await pool.query("UPDATE users SET pass = ? WHERE email = ?", [hashedPassword, email])
+
+    // Delete used OTP
+    await pool.query("DELETE FROM password_reset_otps WHERE id = ?", [otpRecord.id])
+
+    res.json({ message: "Password reset successfully" })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
+})
+
+/* -------------------------------------
    CREATE REQUEST
 ---------------------------------------- */
 router.post("/material-request", authenticate, upload.single("file"), async (req, res) => {
