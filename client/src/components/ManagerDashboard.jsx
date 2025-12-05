@@ -57,6 +57,11 @@ const ManagerDashboard = () => {
                                     Pending Material Requests
                                 </Link>
 
+                                <Link to='/dashboard/manager/view-actions' className={styles.menuItem}>
+                                    <span className={styles.menuIcon}>📋</span>
+                                    View My Actions
+                                </Link>
+
                                 <Link to='/dashboard/account/details' className={styles.menuItem}>
                                     <span className={styles.menuIcon}>👤</span>
                                     Account Details

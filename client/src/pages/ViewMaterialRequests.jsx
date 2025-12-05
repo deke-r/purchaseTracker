@@ -105,12 +105,16 @@ const ViewMaterialRequests = () => {
                                     if (statusId === 7 || statusId === 8) return 'pending'; // On hold
 
                                     // Define stage thresholds (at which ID is this stage completed?)
+                                    // Manager (QS) is done if status > 1
+                                    // Purchase (ZCM) is done if status > 2
                                     // QS is done if status > 1
                                     // ZCM is done if status > 2
                                     // HOD is done if status > 3
                                     // FM is done if status > 4 (which is 5=APPROVED)
 
                                     const stageThresholds = {
+                                        'MANAGER': 1,  // Manager approval corresponds to QS stage
+                                        'PURCHASE': 2, // Purchase approval corresponds to ZCM stage
                                         'QS': 1,
                                         'ZCM': 2,
                                         'HOD': 3,

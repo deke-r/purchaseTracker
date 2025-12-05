@@ -20,6 +20,10 @@ import ViewMaterialRequests from './pages/ViewMaterialRequests';
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyOTP from './pages/VerifyOTP';
 import ResetPassword from './pages/ResetPassword';
+import ViewManagerActions from './pages/Manager/ViewManagerActions';
+import ViewPurchaseActions from './pages/Purchase/ViewPurchaseActions';
+
+
 
 
 const App = () => {
@@ -50,7 +54,9 @@ const App = () => {
             <Route path="/dashboard/view-material-requests/details" element={<DetailPendingMaterial />} />
             <Route path="/dashboard/employee/request-for-material" element={<RequestMaterial />} />
             <Route path="/dashboard/manager/pending-material-requests" element={<PendingMaterialRequests />} />
+            <Route path="/dashboard/manager/view-actions" element={<ViewManagerActions />} />
             <Route path="/dashboard/purchase/pending-material-requests" element={<PendingMaterialReqPurchase />} />
+            <Route path="/dashboard/purchase/view-actions" element={<ViewPurchaseActions />} />
             <Route path="/dashboard/manager/pending-material-requests/details" element={<DetailPendingMaterial />} />
             <Route path="/dashboard/purchase/pending-material-requests/details" element={<DetailPendMaterialPurc />} />
             <Route path="/dashboard/account/details" element={<EmployeeAccountDetails />} />

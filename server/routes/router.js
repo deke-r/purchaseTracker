@@ -640,4 +640,60 @@ router.get("/material-requests/user/:userId", authenticate, async (req, res) => 
   }
 });
 
+// GET material requests that the current manager has acted upon
+router.get("/material-requests/manager-actions", authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userName = req.user.name;
+
+    // Join requests with approval_history to get all requests this manager has acted on
+    const [results] = await pool.query(
+      `SELECT 
+        r.*,
+        ah.action as manager_action,
+        ah.comment as manager_remarks,
+        ah.created_at as action_date
+      FROM requests r
+      INNER JOIN approval_history ah ON r.id = ah.request_id
+      WHERE ah.user_name = ? AND ah.role = 'manager'
+      ORDER BY ah.created_at DESC`,
+      [userName]
+    );
+
+    res.json(results);
+  } catch (err) {
+    console.error("Error fetching manager actions:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// GET material requests that the current purchase user has acted upon
+router.get("/material-requests/purchase-actions", authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userName = req.user.name;
+
+    // Join requests with approval_history to get all requests this purchase user has acted on
+    const [results] = await pool.query(
+      `SELECT 
+        r.*,
+        ah.action as purchase_action,
+        ah.comment as purchase_remarks,
+        ah.created_at as action_date
+      FROM requests r
+      INNER JOIN approval_history ah ON r.id = ah.request_id
+      WHERE ah.user_name = ? AND ah.role = 'purchase'
+      ORDER BY ah.created_at DESC`,
+      [userName]
+    );
+
+    res.json(results);
+  } catch (err) {
+    console.error("Error fetching purchase actions:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+
+
 module.exports = router

@@ -45,6 +45,9 @@ export const PurchaseDashboard = () => {
                                 <Link to="/dashboard/purchase/pending-material-requests" className={styles.menuItem}>
                                     Pending Material Requests
                                 </Link>
+                                <Link to="/dashboard/purchase/view-actions" className={styles.menuItem}>
+                                    View My Actions
+                                </Link>
                             </div>
                         </div>
                     </div>

@@ -180,41 +180,52 @@ const DetailPendingMaterial = () => {
         )}
       </div>
 
-      {/* Action Section */}
-      <div className={styles.actionSection}>
-        <h2 className={styles.actionTitle}>Take Action</h2>
-        <div className={styles.actionGrid}>
-          <textarea
-            className={styles.textarea}
-            placeholder={
-              userRole === 'employee' && userId === requestData.created_by
-                ? "Enter reason for cancellation..."
-                : "Enter remarks here (required for Reject)..."
-            }
-            value={remarksInput}
-            onChange={(e) => setRemarksInput(e.target.value)}
-          ></textarea>
+      {/* Action Section - Only show if request is pending for current user's role */}
+      {((userRole === 'manager' && requestData.status === 1) ||
+        (userRole === 'purchase' && requestData.status === 2) ||
+        (userRole === 'employee' && userId === requestData.created_by && (requestData.status === 1 || requestData.status === 2))) && (
+          <div className={styles.actionSection}>
+            <h2 className={styles.actionTitle}>Take Action</h2>
+            <div className={styles.actionGrid}>
+              <textarea
+                className={styles.textarea}
+                placeholder={
+                  userRole === 'employee' && userId === requestData.created_by
+                    ? "Enter reason for cancellation..."
+                    : "Enter remarks here (required for Reject)..."
+                }
+                value={remarksInput}
+                onChange={(e) => setRemarksInput(e.target.value)}
+                disabled={userRole === 'employee' && requestData.status >= 2}
+              ></textarea>
 
-          <div className={styles.actionButtons}>
-            {userRole === 'employee' && userId === requestData.created_by ? (
-              // Show Cancel button for employees who created the request
-              <button className={`${styles.btn} ${styles.btnCancel}`} onClick={() => handleAction("CANCEL")}>
-                <Ban size={20} /> Cancel Request
-              </button>
-            ) : (
-              // Show Approve/Reject for managers and purchase users
-              <>
-                <button className={`${styles.btn} ${styles.btnApprove}`} onClick={() => handleAction("APPROVE")}>
-                  <CheckCircle size={20} /> Approve
-                </button>
-                <button className={`${styles.btn} ${styles.btnReject}`} onClick={() => handleAction("REJECT")}>
-                  <XCircle size={20} /> Reject
-                </button>
-              </>
-            )}
+              <div className={styles.actionButtons}>
+                {userRole === 'employee' && userId === requestData.created_by ? (
+                  // Show Cancel button for employees who created the request
+                  // Disable if manager has already approved (status >= 2)
+                  <button
+                    className={`${styles.btn} ${styles.btnCancel}`}
+                    onClick={() => handleAction("CANCEL")}
+                    disabled={requestData.status >= 2}
+                    title={requestData.status >= 2 ? "Cannot cancel - Request has been approved by manager" : "Cancel this request"}
+                  >
+                    <Ban size={20} /> {requestData.status >= 2 ? "Cancellation Disabled" : "Cancel Request"}
+                  </button>
+                ) : (
+                  // Show Approve/Reject for managers and purchase users
+                  <>
+                    <button className={`${styles.btn} ${styles.btnApprove}`} onClick={() => handleAction("APPROVE")}>
+                      <CheckCircle size={20} /> Approve
+                    </button>
+                    <button className={`${styles.btn} ${styles.btnReject}`} onClick={() => handleAction("REJECT")}>
+                      <XCircle size={20} /> Reject
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )}
 
       {/* History Section */}
       <div className={styles.historySection}>
@@ -223,7 +234,7 @@ const DetailPendingMaterial = () => {
           {history.map((h, i) => (
             <div key={i} className={styles.timelineItem}>
               <div className={styles.timelineHeader}>
-                <span className={styles.role}>{h.role}</span>
+                <span className={styles.role}>{h.role.toUpperCase()}</span>
                 <span className={styles.user}>({h.user_name})</span>
                 <span className={styles.action}>{h.action}</span>
               </div>

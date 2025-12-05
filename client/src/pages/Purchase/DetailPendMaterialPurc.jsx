@@ -223,7 +223,7 @@ const DetailPendingMaterial = () => {
           {history.map((h, i) => (
             <div key={i} className={styles.timelineItem}>
               <div className={styles.timelineHeader}>
-                <span className={styles.role}>{h.role}</span>
+                <span className={styles.role}>{h.role.toUpperCase()}</span>
                 <span className={styles.user}>({h.user_name})</span>
                 <span className={styles.action}>{h.action}</span>
               </div>
