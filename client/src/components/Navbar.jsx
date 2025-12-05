@@ -37,6 +37,7 @@ const Navbar = ({ id, name, role }) => {
                 {id} &nbsp;:&nbsp; {name}
               </Link>
             </li>
+            
             <li className="nav-item mx-3">
               <Link className="nav-link text-light text-capitalize f_14 fw-semibold" to="#">
                 <i className="fa-solid fa-id-card me-2"></i>
